@@ -16,4 +16,10 @@ typedef struct record{
 	char *end;
 } Record;
 
+// Mergesort prototype headers for .c file to use
+// void* parameter will be the function pointer
+// to the appropriate comparator function
+int mergesort(Record*, int, int, void*);
+int merge(Record*, int, int, int, void*);
+
 #endif
