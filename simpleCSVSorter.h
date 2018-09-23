@@ -10,8 +10,12 @@
 #define STDOUT 1
 #define STDERR 2
 
-typedef struct record{
-	char *key;
+typedef union valuePtr {
+	int *intKey;
+	char *charKey;
+} Key;
+typedef struct record {
+	Key ptr;
 	char *beginning;
 	char *end;
 } Record;
