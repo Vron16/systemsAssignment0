@@ -34,4 +34,7 @@ int merge(Record*, int, int, int, int*);
 int intComparator(void*, void*);
 int strComparator(void*, void*);
 
+// Prototype for trim method in our library class
+char *trimwhitespace(char *);
+
 #endif

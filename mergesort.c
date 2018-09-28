@@ -74,3 +74,31 @@ int intComparator (void* data0, void* data1) {
 int strComparator (void* data0, void* data1) {
 	return strcmp(*((char*)data1), *((char*)data0));
 }
+
+// Note: this code was grabbed from StackOverflow, by user Adam Rosenfield.
+// While we did not create this code, we understand how it works and will
+// be utilizing it to handle the generalized case of the program
+// Note: This function returns a pointer to a substring of the original string.
+// If the given string was allocated dynamically, the caller must not overwrite
+// that pointer with the returned value, since the original pointer must be
+// deallocated using the same allocator with which it was allocated.  The return
+// value must NOT be deallocated using free() etc.
+char *trimwhitespace(char *str)
+{
+  char *end;
+
+  // Trim leading space
+  while(isspace((unsigned char)*str)) str++;
+
+  if(*str == 0)  // All spaces?
+    return NULL; // This we changed, to allow us to sort on NULL values instead of an empty string
+
+  // Trim trailing space
+  end = str + strlen(str) - 1;
+  while(end > str && isspace((unsigned char)*end)) end--;
+
+  // Write new null terminator character
+  end[1] = '\0';
+
+  return str;
+}
