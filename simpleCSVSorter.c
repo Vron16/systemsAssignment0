@@ -58,11 +58,11 @@ int main (char ** argv, int argc) {
 
 			// Resizing checks
 			if (strlen(line) == sizeof(line) - 1){
-				resize(line, 1); // double our buffer size
+				resize(line); // double our buffer size
 			}
 
 			if (strlen(strBuilder) == sizeof(strBuilder) - 1){ // 1 character offset for null terminating character
-				resize(strBuilder, 1);  // double our buffer size
+				resize(strBuilder);  // double our buffer size
 			}
 
 			read(STDIN, newChar, sizeof(char)); // gets a single character from STDIN
@@ -88,8 +88,7 @@ int main (char ** argv, int argc) {
 			free(newChar);
 		}
 
-		trim(strBuilder); // remove leading and trailing whitespace
-		resize(strBuilder, 0); // shrink buffer size down to strlen
+		strBuilder = trim(strBuilder); // remove leading and trailing whitespace
 
 		if (strcmp(column, strBuilder) == 0){
 			found = 1;
@@ -164,11 +163,11 @@ int main (char ** argv, int argc) {
 
 			// Resizing checks
 			if (strlen(strBuilder) == sizeof(strBuilder) - 1){ // 1 character offset for null terminating character
-				resize(strBuilder, 1);  // double our buffer size
+				resize(strBuilder);  // double our buffer size
 			}
 
 			if (strlen(keyBuilder) == sizeof(strBuilder) - 1){
-				resize(strBuilder, 1); // double our buffer size
+				resize(strBuilder); // double our buffer size
 			}
 
 			read(STDIN, newChar, sizeof(char)); // gets a single character from STDIN
@@ -211,8 +210,7 @@ int main (char ** argv, int argc) {
 						if (numOfCommas == count){
 							if (foundChars == 1){
 								strcat(keyBuilder, '\0'); // terminate the key string
-								trim(keyBuilder);
-								resize(keyBuilder, 0); // shrink the buffer to minimal size
+								keyBuilder = trim(keyBuilder);
 							} else {
 								keyBuilder = NULL; // will help with mergesort
 							}
@@ -261,8 +259,6 @@ int main (char ** argv, int argc) {
 		}
 
 		if (endOfFile == 0){
-			resize(strBuilder, 0); // reduce size of buffer
-
 			// Construct the record entry
 			myRecord.key = keyBuilder;
 			myRecord.line = strBuilder;
@@ -282,7 +278,17 @@ int main (char ** argv, int argc) {
 	Record *converted = convertToArray(head, lineNum);
 
 	// If we get to this point, then we have inserted all of the Records properly into the array and can begin sorting
-	//int result = mergesort(converted, 0, lineNum, strOrNumeric, possibleDouble);
+	int (*comparePtr)(void *, void *);
+
+	if (strOrNumeric == 1){
+		comparePtr = strComparator;
+	} else if (possibleDouble == 1){
+		// implement double
+	} else {
+		comparePtr = intComparator;
+	}
+
+	sortLaunch(converted, lineNum, comparePtr); // launches our MergeSort
 
 	//****************************************************************************************************************
 	// OUTPUT
