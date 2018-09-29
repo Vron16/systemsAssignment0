@@ -23,16 +23,16 @@ typedef struct record {
 // Mergesort prototype headers for .c file to use
 // int* parameter will be the function pointer
 // to the appropriate comparator function
-int mergesort(Record*, int, int, int*);
-int merge(Record*, int, int, int, int*);
+int mergesort(Record [], int, int, int *);
+int merge(Record [], int, int, int, int *);
 
 //intComparator and strComparator prototype headers for mergesort.c to use
 //Pointer to intComparator is passed into mergesort function for records containing numeric values
 //Pointer to strComparator is passed into mergesort function for records containing alphabetic values
 //Both functions take void* paramters for the two pieces of data being compared, which are then cast in the function bodies depending on
 //expected type. Allows for Record struct to contain one simplistic void*ptr that is cast as necessary when passed to the correct comparator function 
-int intComparator(void*, void*);
-int strComparator(void*, void*);
+int intComparator(void *, void *);
+int strComparator(void *, void *);
 
 // Prototype for trim method in our library class
 char *trimwhitespace(char *);
