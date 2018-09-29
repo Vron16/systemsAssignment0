@@ -134,3 +134,33 @@ char *trimwhitespace(char *str)
 
   return str;
 }
+
+// Takes a LinkedList and converts it into an array of Records
+// Also frees the pointers during creation
+Record *convertToArray(Node *head, int numEntries){
+	Record myRecords[numEntries];
+
+	Node *current = head;
+
+	int i;
+	for (i = 0; i < numEntries; i++){
+		myRecords[i] = current->data;
+		Node *prev = current;
+		current = current->next;
+		free(prev); // garbage collection
+	}
+
+	return myRecords;
+}
+
+// Resizes a string buffer by reallocating double the size
+int resize(char *buffer){
+	char *tmp = (char *)realloc(strlen(buffer)*sizeof(char)*2);
+	
+	if (tmp == NULL){
+		return -1;
+	} else {
+		buffer = tmp;
+		return 0;
+	}
+}

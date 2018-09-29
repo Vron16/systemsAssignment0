@@ -6,8 +6,8 @@ all : mergesort simpleCSVSorter
 mergesort : mergesort.c
 	$(CC) -c $(CFLAGS) mergesort.c
 
-simpleCSVSorter : simpleCSVSorter.c simpleCSVSorter.h
-	$(CC) $(CFLAGS) simpleCSVSorter.c simpleCSVSorter.h mergesort.o -o simpleCSVSorter
+simpleCSVSorter : simpleCSVSorter.c
+	$(CC) $(CFLAGS) simpleCSVSorter.c mergesort.o -o simpleCSVSorter
 
 clean : 
 	rm -f simpleCSVSorter mergesort.o

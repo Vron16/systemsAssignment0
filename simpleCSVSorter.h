@@ -14,11 +14,16 @@
 	int *intKey;
 	char *charKey;
 } Key;*/
+
 typedef struct record {
-	void *ptr; //void ptr to the data that mergesort.c utilizes to sort by (will be cast to int or char depending on the comparator function specified)
-	char *beginning; //char pointer to the start of the row of characters
-	char *end; //char pointer to the start of the remainder of the characters that occur after the data we are sorting on in the original row
+	char *line; //char pointer to the start of the line
+	char *key; //char pointer to the start of the key
 } Record;
+
+typedef struct node {
+	Record data; // actual data that we need
+	Node *next; // pointer to next node in list
+} Node;
 
 // Mergesort prototype headers for .c file to use
 // int* parameter will be the function pointer
@@ -37,5 +42,9 @@ int strComparator(void *, void *);
 
 // Prototype for trim method in our library class
 char *trimwhitespace(char *);
+
+// Prototypes for convertToArray and resize methods in our library class
+Record *convertToArray(Node *, int);
+int resize(char *);
 
 #endif
