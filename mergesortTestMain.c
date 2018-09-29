@@ -6,11 +6,11 @@
 
 int main (char ** argv, int argc) {
 	char *rec1Beginning = "2, 3, 4, ";
-	int rec1Data = 45;
+	int  rec1Data = 45;
 	char *rec1Ending = ", 5, 6, 7";
 
 	char *rec2Beginning = "3, 4, 5, ";
-	int rec2Data = 32;
+	int  rec2Data = NULL;
 	char *rec2Ending = ", 6, 7, 8";
 
 	char *rec3Beginning = "4, 5, 6, ";
@@ -18,11 +18,11 @@ int main (char ** argv, int argc) {
 	char *rec3Ending = ", 7, 8, 9";
 
 	char *rec4Beginning = "5, 6, 7, ";
-	int rec4Data = 77;
+	int rec4Data = 23;
 	char *rec4Ending = ", 8, 9, 10";
 
 	char *rec5Beginning = "6, 7, 8, ";
-	int rec5Data = 17;
+	int  rec5Data = 31;
 	char *rec5Ending = ", 9, 10, 11";
 
 	//char *rec1BeginningPtr = &rec1Beginning;
@@ -52,15 +52,27 @@ int main (char ** argv, int argc) {
 	Record record5 = {rec5DataPtr, rec5Beginning, rec5Ending};
 
 	Record records[] = {record1, record2, record3, record4, record5};
-	//int (*compPtr)(void *, void *) = intComparator;
-	//mergesort(records, 0, 4, compPtr);
 
 	int i;
 	//int recordsSize = sizeof(records)/sizeof(Record);
 	for (i = 0; i < 5; i++) {
 		Record rec = records[i];
+		char *start = rec.beginning;
 		int *dataPtr = (int *)(rec.ptr);
-		printf("Data : %d \n", *dataPtr);
+		char *ending = rec.end;
+		printf("Data : %s%d%s \n", start, *dataPtr, ending);
 	}
+
+	int (*compPtr)(void *, void *) = intComparator;
+	sortLaunch(records, 4, compPtr);
+	//mergesort(records, 0, 4, compPtr);
+	for (i = 0; i < 5; i++) {
+		Record rec = records[i];
+		char *start = rec.beginning;
+		int *dataPtr = (int *)(rec.ptr);
+		char *ending = rec.end;
+		printf("Sorted Data : %s%d%s \n", start, *dataPtr, ending);
+	}	
+	return 0;
 
 }

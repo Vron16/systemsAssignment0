@@ -1,29 +1,55 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include "simpleCSVSorter.h"
 
-void mergesort (Record records[], int left, int right, int *compareFcnPtr(void*, void*)) {
+void sortLaunch (Record *recordsStart, int right, int (*compareFcnPtr)(void *, void *)) {
+	int size = right + 1;
+	Record temp[size];
+	int nullIndex = 0;
+	int i;
+	for (i = 0; i < right; i++) {
+		Record rec = *(recordsStart + i);
+		if (rec.ptr == NULL) {
+			temp[nullIndex] = rec;
+			nullIndex++;
+		}
+	}
+	int nonNullIndex = nullIndex;
+	for (i = 0; i < right; i++) {
+		Record rec = *(recordsStart + i);
+		if (rec.ptr != NULL) {
+			temp[nonNullIndex] = rec;
+			nonNullIndex++;
+		}
+	}
+	for (i = 0; i < right; i++) {
+		*(recordsStart + i) = temp[i];
+	}
+	mergesort(recordsStart, nullIndex, right, compareFcnPtr);
+}
+
+void mergesort (Record *recordsStart, int left, int right, int (*compareFcnPtr)(void *, void *)) {
 	//as long as mergesort is working on a valid subsection of the array of records (left pointer is less than the right pointer)
 	if (left < right) {
 		int mid = (left + right)/2; //calculate middle index of the array of records
-		mergesort(records, left, mid, compareFcnPtr); //recursively sort the left half of the array of records
-		mergesort(records, mid + 1, right, compareFcnPtr); //recursively sort the right of the array of records
-		merge(records, left, mid, right, compareFcnPtr); //merge the two halves of the array by using the merge helper function
+		mergesort(recordsStart, left, mid, compareFcnPtr); //recursively sort the left half of the array of records
+		mergesort(recordsStart, mid + 1, right, compareFcnPtr); //recursively sort the right of the array of records
+		merge(recordsStart, left, mid, right, compareFcnPtr); //merge the two halves of the array by using the merge helper function
 	}
 }
 
-
-void merge (Record records[], int left, int mid, int right, int *compareFcnPtr(void*, void*)) {
+void merge (Record *recordsStart, int left, int mid, int right, int (*compareFcnPtr)(void*, void*)) {
 	int leftSize = mid - left + 1;
-	int rightSize right - mid;
+	int rightSize = right - mid;
 	Record leftHalf[leftSize];
 	Record rightHalf[rightSize];
 	int i;
 	for (i = 0; i < leftSize; i++) {
-		leftHalf[i] = records[left + i];
+		leftHalf[i] = *(recordsStart + left + i);
 	}
 	for (i = 0; i < rightSize; i++) {
-		rightHalf[i] = records[mid + i + 1];
+		rightHalf[i] = *(recordsStart+mid+i+1); 
 	}
 	int leftIndex = 0;
 	int rightIndex = 0;
@@ -32,35 +58,41 @@ void merge (Record records[], int left, int mid, int right, int *compareFcnPtr(v
 	while (leftIndex < leftSize && rightIndex < rightSize) {
 		Record leftTemp = leftHalf[leftIndex];
 		Record rightTemp = rightHalf[rightIndex];
-		int comparison = *compareFcnPtr(leftTemp->ptr, rightTemp->ptr);
+		int comparison = (*compareFcnPtr)(leftTemp.ptr, rightTemp.ptr);
 		if (comparison > 0) {
-			records[mergedIndex] = rightTemp;
+			*(recordsStart + mergedIndex) = rightTemp;
+			//records[mergedIndex] = rightTemp;
 			mergedIndex++;
 			rightIndex++;
 		}
 		else if (comparison < 0) {
-			records[mergedIndex] = leftTemp;
+			*(recordsStart + mergedIndex) = leftTemp;
+			//records[mergedIndex] = leftTemp;
 			mergedIndex++;
 			leftIndex++;
 		}
 		else {
-			records[mergedIndex] = leftTemp;
+			*(recordsStart + mergedIndex) = leftTemp;
+			//records[mergedIndex] = leftTemp;
 			mergedIndex++;
 			leftIndex++;
-			records[mergedIndex] = rightTemp;
+			*(recordsStart + mergedIndex) = rightTemp;
+			//records[mergedIndex] = rightTemp;
 			mergedIndex++;
 			rightIndex++;
 		}
 	}
 
 	while (leftIndex < leftSize) {
-		records[mergedIndex] = leftHalf[leftIndex];
+		*(recordsStart + mergedIndex) = leftHalf[leftIndex];
+		//records[mergedIndex] = leftHalf[leftIndex];
 		mergedIndex++;
 		leftIndex++;
 	}
 
 	while (rightIndex < rightSize) {
-		records[mergedIndex] = rightHalf[rightIndex];
+		*(recordsStart + mergedIndex) = rightHalf[rightIndex];
+		//records[mergedIndex] = rightHalf[rightIndex];
 		mergedIndex++;
 		rightIndex++;
 	}
@@ -72,7 +104,7 @@ int intComparator (void* data0, void* data1) {
 }
 
 int strComparator (void* data0, void* data1) {
-	return strcmp(*((char*)data1), *((char*)data0));
+	return strcmp((const char*)data0, (const char*)data1);
 }
 
 // Note: this code was grabbed from StackOverflow, by user Adam Rosenfield.

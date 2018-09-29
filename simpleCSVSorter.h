@@ -23,8 +23,9 @@ typedef struct record {
 // Mergesort prototype headers for .c file to use
 // int* parameter will be the function pointer
 // to the appropriate comparator function
-int mergesort(Record [], int, int, int *);
-int merge(Record [], int, int, int, int *);
+void sortLaunch(Record *, int, int(*f)(void *, void *));
+void mergesort(Record *, int, int, int (*f)(void *, void *));
+void merge(Record *, int, int, int, int (*f)(void *, void *));
 
 //intComparator and strComparator prototype headers for mergesort.c to use
 //Pointer to intComparator is passed into mergesort function for records containing numeric values
