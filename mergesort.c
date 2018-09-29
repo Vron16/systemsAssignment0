@@ -98,7 +98,7 @@ void merge (Record *recordsStart, int left, int mid, int right, int (*compareFcn
 	}
 
 }
-//TODO: HANDLE NULL CASES
+
 int intComparator (void* data0, void* data1) {
 	return *((int*)data0) - *((int*)data1);
 }
