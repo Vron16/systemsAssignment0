@@ -111,7 +111,7 @@ void merge (Record **recordsStart, int left, int mid, int right, int (*compareFc
 	//write(STDOUT, recordsStart[1]->line,sizeof(char)*strlen(recordsStart[1]->line));
 
 }
-//TODO: HANDLE NULL CASES
+
 int intComparator (void* data0, void* data1) {
 	return (atoi(data0) - atoi(data1));
 }
@@ -165,7 +165,6 @@ char *trimwhitespace(char *str)
 // Also frees the pointers during creation
 Record **convertToArray(Node *head, int numEntries){
 	Record **myRecords = (Record **)malloc(sizeof(Record *)*numEntries);
-
 	Node *current = head;
 
 	int i;
@@ -177,7 +176,7 @@ Record **convertToArray(Node *head, int numEntries){
 		//free(prev); // garbage collection
 	}
 
-	return myRecords;
+	return &myRecords;
 }
 
 // Resizes a string buffer by reallocating double the size

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <ctype.h>
 #include "simpleCSVSorter.h"
-
+	
 int main  (int argc, char **argv) {
 	// First, we need to check to make sure that our input is all valid  (expecting 3 inputs
 	// and the -c flag)
@@ -207,10 +207,11 @@ int main  (int argc, char **argv) {
 						if (foundChars == 1){
 							strcat(keyBuilder, "\0"); // terminate the key string
 							trimwhitespace(keyBuilder);
+
 						} else {
 							keyBuilder = NULL; // will help with mergesort
 						}
-					} else if (count < comma || count > numCols){
+					} else if (count < numOfCommas || count > numCols){
 						char *errorMessage = "Invalid number of entries in a record.  Aborting program.\n";
 						write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 						return -1;
@@ -265,7 +266,6 @@ int main  (int argc, char **argv) {
 					if (comma == count){
 						foundChars = 1; // our key is nonempty!
 						strcat(keyBuilder, newChar);
-
 						if (isalpha(newChar[0])){
 							strOrNumeric = 1;
 						}
@@ -315,11 +315,11 @@ int main  (int argc, char **argv) {
 	// OUTPUT
 	//****************************************************************************************************************
 
-	write(STDOUT, line, sizeof(char)*strlen(line)); // column headings
+	write(STDOUT, line, sizeof(char)*strlen(line)); // column headings;
 	
 	int i;
 	for (i = 0; i < lineNum; i++){
-		write(STDOUT, converted[i]->line, sizeof(char)*strlen(converted[i]->line));
+		write(STDOUT, converted[lineNum].line, sizeof(char)*strlen(converted[lineNum].line));
 	}
 		
 	//****************************************************************************************************************

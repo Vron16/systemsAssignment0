@@ -17,7 +17,7 @@
 
 typedef struct record {
 	char *line; //char pointer to the start of the line
-	void *key; //void pointer to the start of the key
+	void *key; //char pointer to the start of the key
 } Record;
 
 typedef struct node {
