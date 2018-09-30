@@ -2,22 +2,24 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <errno.h>
+#include <string.h>
+#include <ctype.h>
 #include "simpleCSVSorter.h"
 
-int main (char ** argv, int argc) {
+int main (int argc, char ** argv) {
 	// First, we need to check to make sure that our input is all valid  (expecting 3 inputs
 	// and the -c flag)
 	if (argc != 3){
 		char *errorMessage = "Missing command line arguments.  Aborting program.\n";
-		write(STDERR, errorMessage, sizeof(errorMessage);
+		write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 		return -1;
 	}
 
 	char *sort = argv[1];
 
-	if (strcmp(sort,"-c") == 0){
+	if (strcmp(sort,"-c") != 0){
 		char *errorMessage = "Unrecognized value.  Expected \"-c\".  Aborting program.\n";
-		write(STDERR, errorMessage, sizeof(errorMessage);
+		write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 		return -1;
 	}
 
@@ -41,7 +43,7 @@ int main (char ** argv, int argc) {
 		// Memory check
 		if (strBuilder == NULL){
 			char *errorMessage = "Error upon allocating memory to strBuilder for column headings.  Aborting program.\n";
-			write(STDERR, errorMessage, sizeof(errorMessage));
+			write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 			return -1;
 		}
 
@@ -52,7 +54,7 @@ int main (char ** argv, int argc) {
 
 			if (newChar == NULL){
 				char *errorMessage = "Error allocating memory to newChar in column headings.  Aborting program.\n";
-				write(STDERR, errorMessage, sizeof(errorMessage));
+				write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 				return -1;
 			}
 
@@ -72,14 +74,16 @@ int main (char ** argv, int argc) {
 			switch(newChar[0]){
 				case '\n':
 					endOfLine = 1;
-					strcat(line, '\0');  // terminate the line
-					strcat(strBuilder, '\0'); // terminate the builder
+					endOfStr = 1;
+					strcat(line, "\0");  // terminate the line
+					strcat(strBuilder, "\0"); // terminate the builder
 					break;
 				case ',':
 					endOfStr = 1;
-					strcat(strBuilder, '\0'); // terminate the builder
+					strcat(strBuilder, "\0"); // terminate the builder
 					numOfCommas = numOfCommas + 1;
 					numCols = numCols + 1;
+					break;
 				default: // is a valid alphanumeric character or space
 					strcat(strBuilder, newChar);
 					break;
@@ -88,19 +92,20 @@ int main (char ** argv, int argc) {
 			free(newChar);
 		}
 
-		strBuilder = trim(strBuilder); // remove leading and trailing whitespace
+		strBuilder = trimwhitespace(strBuilder); // remove leading and trailing whitespace
 
 		if (strcmp(column, strBuilder) == 0){
 			found = 1;
-			numOfCommas -= 1; // will make our lives easier in the next part
+			if (endOfLine != 1)
+				numOfCommas -= 1; // will make our lives easier in the next part
 		}
 
 		free(strBuilder);
 	}
 	
 	if (found == 0){
-		char *errorMessage = "Column heading not found.  Cannot complete sort.  Aborting program.\n");
-		write(STDERR, errorMessage, sizeof(errorMessage));
+		char *errorMessage = "Column heading not found.  Cannot complete sort.  Aborting program.\n";
+		write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 		return -1;
 	}
 
@@ -117,7 +122,7 @@ int main (char ** argv, int argc) {
 	int lineNum = 0; // represents the number line we are on (excluding the header)
 
 	int strOrNumeric = 0; // If we don't ever find a character in our key values, then we assume the column is of a numeric type
-	int possibleDoubles = 0;
+	int potentialDoubles = 0;
 
 	while (endOfFile == 0){
 
@@ -129,7 +134,7 @@ int main (char ** argv, int argc) {
 		// Memory check
 		if (strBuilder == NULL){
 			char *errorMessage = "Error upon allocating memory to strBuilder for records.  Aborting program.\n";
-			write(STDERR, errorMessage, sizeof(errorMessage));
+			write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 			return -1;
 		}
 
@@ -138,7 +143,7 @@ int main (char ** argv, int argc) {
 		// Memory check
 		if (keyBuilder == NULL){
 			char *errorMessage = "Error upon allocating memory to strBuilder for records.  Aborting program.\n";
-			write(STDERR, errorMessage, sizeof(errorMessage));
+			write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 			return -1;
 		}
 
@@ -154,11 +159,8 @@ int main (char ** argv, int argc) {
 
 			if (newChar == NULL){
 				char *errorMessage = "Error allocating memory to newChar in records.  Aborting program.\n";
-				write(STDERR, errorMessage, sizeof(errorMessage));
+				write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 				return -1;
-			} else if (sizeof(newChar) == 0){
-				endOfFile = 1;
-				break;
 			}
 
 			// Resizing checks
@@ -171,6 +173,10 @@ int main (char ** argv, int argc) {
 			}
 
 			read(STDIN, newChar, sizeof(char)); // gets a single character from STDIN
+			if (strlen(newChar) == 0) {
+				endOfFile = 1;
+				break;
+			}
 			newChar[1] = '\0';
 
 			strcat(strBuilder, newChar); // append newChar to line being built
@@ -180,27 +186,27 @@ int main (char ** argv, int argc) {
 					endOfLine = 1;
 
 					if (numOfCommas == count){
-						strcat(strBuilder, '\0'); // terminate the line
+						strcat(strBuilder, "\0"); // terminate the line
 
 						if (foundChars == 1){
-							strcat(keyBuilder, '\0'); // terminate the key string
-							trim(keyBuilder);
-							resize(keyBuilder, 0); // shrink the buffer to minimal size
+							strcat(keyBuilder, "\0"); // terminate the key string
+							trimwhitespace(keyBuilder);
+							//resize(keyBuilder, 0); // shrink the buffer to minimal size
 						} else {
 							keyBuilder = NULL; // will help with mergesort
 						}
 						
 						// Construct the record entry
-						myRecord.key = keyBuilder;
-						myRecord.line = strBuilder;
+						//myRecord.key = keyBuilder;
+						//myRecord.line = strBuilder;
 
 						// Finish current node and construct next node
-						current->data = myRecord;
-						current->next = (Node *)malloc(sizeof(Node));
-						current = current->next;
+						//current->data = myRecord;
+						//current->next = (Node *)malloc(sizeof(Node));
+						//current = current->next;
 					} else if (count < numOfCommas || count > numCols){
 						char *errorMessage = "Invalid number of entries in a record.  Aborting program.\n";
-						write(STDERR, errorMessage, sizeof(errorMessage));
+						write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 						return -1;
 					}
 
@@ -209,8 +215,8 @@ int main (char ** argv, int argc) {
 					if (quotes == 0){
 						if (numOfCommas == count){
 							if (foundChars == 1){
-								strcat(keyBuilder, '\0'); // terminate the key string
-								keyBuilder = trim(keyBuilder);
+								strcat(keyBuilder, "\0"); // terminate the key string
+								keyBuilder = trimwhitespace(keyBuilder);
 							} else {
 								keyBuilder = NULL; // will help with mergesort
 							}
@@ -248,7 +254,7 @@ int main (char ** argv, int argc) {
 						foundChars = 1; // our key is nonempty!
 						strcat(keyBuilder, newChar);
 
-						if (isalpha(newChar[0]){
+						if (isalpha(newChar[0])) {
 							strOrNumeric = 1;
 						}
 					}
@@ -282,7 +288,7 @@ int main (char ** argv, int argc) {
 
 	if (strOrNumeric == 1){
 		comparePtr = strComparator;
-	} else if (possibleDouble == 1){
+	} else if (potentialDoubles == 1){
 		// implement double
 	} else {
 		comparePtr = intComparator;
@@ -294,11 +300,11 @@ int main (char ** argv, int argc) {
 	// OUTPUT
 	//****************************************************************************************************************
 
-	write(STDOUT, line, sizeof(line)); // column headings;
+	write(STDOUT, line, sizeof(char)*strlen(line)); // column headings;
 	
 	int i;
 	for (i = 0; i < lineNum; i++){
-		write(STDOUT, converted[lineNum].line, sizeof(converted[lineNum].line);
+		write(STDOUT, converted[lineNum].line, sizeof(char)*strlen(converted[lineNum].line));
 	}
 		
 	//****************************************************************************************************************

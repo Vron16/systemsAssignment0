@@ -1,6 +1,7 @@
 #include<stdio.h>
 #include<stdlib.h>
 #include<string.h>
+#include<ctype.h>
 #include "simpleCSVSorter.h"
 
 void sortLaunch (Record *recordsStart, int right, int (*compareFcnPtr)(void *, void *)) {
@@ -10,7 +11,7 @@ void sortLaunch (Record *recordsStart, int right, int (*compareFcnPtr)(void *, v
 	int i;
 	for (i = 0; i < right; i++) {
 		Record rec = *(recordsStart + i);
-		if (rec.ptr == NULL) {
+		if (rec.key == NULL) {
 			temp[nullIndex] = rec;
 			nullIndex++;
 		}
@@ -18,7 +19,7 @@ void sortLaunch (Record *recordsStart, int right, int (*compareFcnPtr)(void *, v
 	int nonNullIndex = nullIndex;
 	for (i = 0; i < right; i++) {
 		Record rec = *(recordsStart + i);
-		if (rec.ptr != NULL) {
+		if (rec.key != NULL) {
 			temp[nonNullIndex] = rec;
 			nonNullIndex++;
 		}
@@ -138,7 +139,7 @@ char *trimwhitespace(char *str)
 // Takes a LinkedList and converts it into an array of Records
 // Also frees the pointers during creation
 Record *convertToArray(Node *head, int numEntries){
-	Record myRecords[numEntries];
+	Record *myRecords = (Record *)malloc(sizeof(Record)*numEntries);
 
 	Node *current = head;
 
@@ -150,12 +151,12 @@ Record *convertToArray(Node *head, int numEntries){
 		free(prev); // garbage collection
 	}
 
-	return myRecords;
+	return &myRecords;
 }
 
 // Resizes a string buffer by reallocating double the size
 int resize(char *buffer){
-	char *tmp = (char *)realloc(strlen(buffer)*sizeof(char)*2);
+	char *tmp = (char *)realloc(buffer, strlen(buffer)*sizeof(char)*2);
 	
 	if (tmp == NULL){
 		return -1;

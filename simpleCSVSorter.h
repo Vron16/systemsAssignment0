@@ -17,12 +17,12 @@
 
 typedef struct record {
 	char *line; //char pointer to the start of the line
-	char *key; //char pointer to the start of the key
+	void *key; //char pointer to the start of the key
 } Record;
 
 typedef struct node {
 	Record data; // actual data that we need
-	Node *next; // pointer to next node in list
+	struct node *next; // pointer to next node in list
 } Node;
 
 // Mergesort prototype headers for .c file to use
