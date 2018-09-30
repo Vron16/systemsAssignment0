@@ -10,16 +10,13 @@
 #define STDOUT 1
 #define STDERR 2
 
-/*typedef union valuePtr {
-	int *intKey;
-	char *charKey;
-} Key;*/
-
+// Holds the data we need to sort upon
 typedef struct record {
 	char *line; //char pointer to the start of the line
 	void *key; //char pointer to the start of the key
 } Record;
 
+// Used to implement a linkedlist
 typedef struct node {
 	Record *data; // actual data that we need
 	struct node *next; // pointer to next node in list
@@ -35,7 +32,8 @@ void merge(Record **, int, int, int, int (*f)(void *, void *));
 //intComparator and strComparator prototype headers for mergesort.c to use
 //Pointer to intComparator is passed into mergesort function for records containing numeric values
 //Pointer to strComparator is passed into mergesort function for records containing alphabetic values
-//Both functions take void* paramters for the two pieces of data being compared, which are then cast in the function bodies depending on
+//Pointer to doubleComparator is passed into mergesort function for records containing floating point values
+//All functions take void* paramters for the two pieces of data being compared, which are then cast in the function bodies depending on
 //expected type. Allows for Record struct to contain one simplistic void*ptr that is cast as necessary when passed to the correct comparator function 
 int intComparator(void *, void *);
 int strComparator(void *, void *);

@@ -10,16 +10,16 @@ int main  (int argc, char **argv) {
 	// First, we need to check to make sure that our input is all valid  (expecting 3 inputs
 	// and the -c flag)
 	if (argc != 3){
-		char *errorMessage0 = "Missing command line arguments.  Aborting program.\n";
-		write(STDERR, errorMessage0, sizeof(char)*strlen(errorMessage0));
+		char *errorMessage = "Missing command line arguments.  Aborting program.\n";
+		write(STDERR, errorMessage0, sizeof(char)*strlen(errorMessage));
 		return -1;
 	}
 
 	char *sort = argv[1];
 
 	if (strcmp(sort,"-c") != 0){
-		char *errorMessage1 = "Unrecognized value.  Expected \"-c\".  Aborting program.\n";
-		write(STDERR, errorMessage1, sizeof(char)*strlen(errorMessage1));
+		char *errorMessage = "Unrecognized value.  Expected \"-c\".  Aborting program.\n";
+		write(STDERR, errorMessage1, sizeof(char)*strlen(errorMessage));
 		return -1;
 	}
 
@@ -29,23 +29,31 @@ int main  (int argc, char **argv) {
 	// We will read through each line character by character and build the string that way
 	int endOfLine = 0; //boolean value to represent when we hit the end of the first line
 	int found = 0; // boolean value to represent when we find the correct column name
-	int numOfCommas = 0; // represents number of commas until we hit our key column value (1 representing the first column)
-	int numCols = 0; // represents the number of columns to sort upon
+	int numOfCommas = 0; // represents number of commas acting as separators in line
+	int numCols = 0; // represents the number of columns each record should have
 	char *line = (char *)malloc(sizeof(char)*100); // holds the entire line for the column headings to be printed at end
-	int lineBufferSize = 100;
-	int carriageReturn = 0; // keeps track of if we hit a carriage return character
-	int comma = 0; // represents the number of commas needed to hit the key value
+
+	// Memory check
+	if (strBuilder == NULL){
+		char *errorMessage = "Error upon allocating memory to line for column headings.  Aborting program.\n";
+		write(STDERR, errorMessage3, sizeof(char)*strlen(errorMessage));
+		return -1;
+	}
+
+	int lineBufferSize = 100; // initial buffer size to be used for comparisons
+	int comma = 0; // represents the number of commas needed to hit the key value (0 being the first column)
 
 	// For reading in the input, we will currently assume that most of the edge cases we need to account for in reading in
 	// each record will be nonexistent; can be updated later if we have time
 	
 	while (endOfLine == 0) {
-		char *strBuilder = (char *)malloc(sizeof(char)*100); // assume we won't get more than 100 characters in a single string
-		int strBuilderBufferSize = 100;
+		char *strBuilder = (char *)malloc(sizeof(char)*100);
+		int strBuilderBufferSize = 100; // initial buffer size to be used for comparisons
+
 		// Memory check
 		if (strBuilder == NULL){
-			char *errorMessage3 = "Error upon allocating memory to strBuilder for column headings.  Aborting program.\n";
-			write(STDERR, errorMessage3, sizeof(char)*strlen(errorMessage3));
+			char *errorMessage = "Error upon allocating memory to strBuilder for column headings.  Aborting program.\n";
+			write(STDERR, errorMessage3, sizeof(char)*strlen(errorMessage));
 			return -1;
 		}
 
@@ -55,34 +63,32 @@ int main  (int argc, char **argv) {
 			char *newChar = (char *)malloc(sizeof(char)*2);
 
 			if (newChar == NULL){
-				char *errorMessage4 = "Error allocating memory to newChar in column headings.  Aborting program.\n";
-				write(STDERR, errorMessage4, sizeof(char)*strlen(errorMessage4));
+				char *errorMessage = "Error allocating memory to newChar in column headings.  Aborting program.\n";
+				write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 				return -1;
 			}
 
 			// Resizing checks
 			if (strlen(line) == lineBufferSize){
-				resize(&line); // double our buffer size
-				lineBufferSize = lineBufferSize * 2;
+				resize(&line); // quadruple our buffer size (didn't work with doubling)
+				lineBufferSize = lineBufferSize * 4;
 			}
 
 			if (strlen(strBuilder) == strBuilderBufferSize){ // 1 character offset for null terminating character
-				resize(&strBuilder);  // double our buffer size
-				strBuilderBufferSize = strBuilderBufferSize * 2;
+				resize(&strBuilder);  // quadruple our buffer size
+				strBuilderBufferSize = strBuilderBufferSize * 4;
 			}
 
 			read(STDIN, newChar, sizeof(char)); // gets a single character from STDIN
 				
-			strcat(line, newChar);
+			strcat(line, newChar); // append the character to the line for output
 		
 			switch(newChar[0]){
 				case '\n':
-				//	if(carriageReturn != 1){
-						endOfLine = 1;
-						strcat(line, "\0");  // terminate the line
-						strcat(strBuilder, "\0"); // terminate the builder
-						endOfStr = 1;
-				//	}
+					endOfLine = 1;
+					strcat(line, "\0");  // terminate the line
+					strcat(strBuilder, "\0"); // terminate the builder
+					endOfStr = 1;
 					break;
 				case ',':
 					endOfStr = 1;
@@ -107,6 +113,7 @@ int main  (int argc, char **argv) {
 
 		strBuilder = trimwhitespace(strBuilder); // remove leading and trailing whitespace
 
+		// Check to see if the string we finished building  is our compare value
 		if (strcmp(column, strBuilder) == 0){
 			found = 1;
 			if (endOfLine != 1)
@@ -119,14 +126,16 @@ int main  (int argc, char **argv) {
 	}
 	
 	if (found == 0){
-		char *errorMessage5 = "Column heading not found.  Cannot complete sort.  Aborting program.\n";
-		write(STDERR, errorMessage5, sizeof(char)*strlen(errorMessage5));
+		char *errorMessage = "Column heading not found.  Cannot complete sort.  Aborting program.\n";
+		write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 		return -1;
 	}
 
 	//*****************************************************************************************************
 	// Now we can actually start setting up our array of structs.  This array will later be passed to out
-	// mergesort so that we can sort the records in an efficient manner.
+	// mergesort so that we can sort the records in an efficient manner.  To create the array, we first
+	// create a LinkedList that will then later be converted into an array once we get the number of 
+	// records in our CSV so that we can allocate the appropriate space for our array.
 	//*****************************************************************************************************
 
 	Node *head = (Node *)malloc(sizeof(Node));
@@ -137,7 +146,7 @@ int main  (int argc, char **argv) {
 	int lineNum = 0; // represents the number line we are on (excluding the header)
 	
 	int strOrNumeric = 0; // If we don't ever find a character in our key values, then we assume the column is of a numeric type
-	int potentialDoubles = 0;
+	int potentialDoubles = 0; // If we find a period in our key values, and no characters, we might be comparing doubles
 
 	while (endOfFile == 0){
 
@@ -145,7 +154,8 @@ int main  (int argc, char **argv) {
 		int count = 0; // running sum of number of commas we encounter
 
 		char *strBuilder = (char *)malloc(sizeof(char)*100);
-		int strBuilderBufferSize = 100;
+		int strBuilderBufferSize = 100; // same as above for reading in columns
+
 		// Memory check
 		if (strBuilder == NULL){
 			char *errorMessage = "Error upon allocating memory to strBuilder for records.  Aborting program.\n";
@@ -154,7 +164,8 @@ int main  (int argc, char **argv) {
 		}
 
 		char *keyBuilder = (char *)malloc(sizeof(char)*100);
-		int keyBuilderBufferSize = 100;
+		int keyBuilderBufferSize = 100; // same as above for reading in columns
+
 		// Memory check
 		if (keyBuilder == NULL){
 			char *errorMessage = "Error upon allocating memory to strBuilder for records.  Aborting program.\n";
@@ -169,6 +180,7 @@ int main  (int argc, char **argv) {
 		while (endOfLine == 0){
 			char *newChar = (char *)malloc(sizeof(char)*2);
 			
+			// Memory check
 			if (newChar == NULL){
 				char *errorMessage = "Error allocating memory to newChar in records.  Aborting program.\n";
 				write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
@@ -177,23 +189,24 @@ int main  (int argc, char **argv) {
 
 			// Resizing checks
 			if (strlen(strBuilder) == strBuilderBufferSize){ // 1 character offset for null terminating character
-				resize(&strBuilder);  // double our buffer size
+				resize(&strBuilder);  // quadruple our buffer size
 				strBuilderBufferSize = strBuilderBufferSize * 4;
 			}
 
 			if (keyBuilder != NULL && strlen(keyBuilder) == keyBuilderBufferSize){
-				resize(&keyBuilder); // double our buffer size
+				resize(&keyBuilder); // quadruple our buffer size
 				keyBuilderBufferSize = keyBuilderBufferSize * 4;
 			}
 
 			read(STDIN, newChar, sizeof(char)); // gets a single character from STDIN
 
+			// If the newchar has a size of 0, then we have reached the end of the file
 			if (strlen(newChar) == 0){
 				endOfFile = 1;
 				break;
 			}
 
-			newChar[1] = '\0';	
+			newChar[1] = '\0'; // append to end of string for strcat
 
 			strcat(strBuilder, newChar); // append newChar to line being built
 		
@@ -206,8 +219,7 @@ int main  (int argc, char **argv) {
 
 						if (foundChars == 1){
 							strcat(keyBuilder, "\0"); // terminate the key string
-							trimwhitespace(keyBuilder);
-
+							keyBuilder = trimwhitespace(keyBuilder); // trim the string
 						} else {
 							keyBuilder = NULL; // will help with mergesort
 						}
@@ -216,13 +228,13 @@ int main  (int argc, char **argv) {
 						write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 						return -1;
 					} else {
-						strcat(strBuilder, "\0");
+						strcat(strBuilder, "\0"); // terminate the string
 					}
 
 					break;
 				case ',':
-					if (quotes == 0){
-						if (comma == count){
+					if (quotes == 0){ // quotes mode off
+						if (comma == count){ // building our key
 							if (foundChars == 1){
 								strcat(keyBuilder, "\0"); // terminate the key string
 								keyBuilder = trimwhitespace(keyBuilder);
@@ -237,13 +249,13 @@ int main  (int argc, char **argv) {
 					break;
 				case ' ':
 					if (comma == count){
-						strcat(keyBuilder, newChar);
+						strcat(keyBuilder, newChar); // will be removed later
 					}
 					break;
 
 				case '\t':
 					if (comma == count){
-						strcat(keyBuilder, newChar);
+						strcat(keyBuilder, newChar); // will be removed later
 					}
 					break;
 				case '"':
@@ -258,32 +270,32 @@ int main  (int argc, char **argv) {
 						strcat(keyBuilder, newChar);
 						potentialDoubles = 1; // columns might be numeric double values
 					}
-				case '\r':
-					//strcat(line, "\n");
-					//read(STDIN, newChar, sizeof(char)); // Ignore the next newline character
+				case '\r': // carriage return escape character, ignore
 					break;
 				default:
 					if (comma == count){
 						foundChars = 1; // our key is nonempty!
 						strcat(keyBuilder, newChar);
-						if (isalpha(newChar[0])){
+						if (isalpha(newChar[0])){ // is our character alphabetic?
 							strOrNumeric = 1;
 						}
 					}
 					break;
 			}
 
-			//free(newChar);
+			free(newChar);
 		}
 
 		if (endOfFile == 0){
 			// Construct the record entry
 			// Finish current node and construct next node
 			current->data = (Record *)malloc(sizeof(Record));
+
 			if (keyBuilder != NULL)
 				current->data->key = strdup(keyBuilder);	
 			else
 				current->data->key = NULL;
+
 			current->data->line = strdup(strBuilder);
 			current->next = (Node *)malloc(sizeof(Node));
 			current = current->next;
@@ -291,11 +303,12 @@ int main  (int argc, char **argv) {
 			lineNum++;
 		}	
 		
-		//free(strBuilder);
-		//if (keyBuilder != NULL)
-			//free(keyBuilder);
+		free(strBuilder);
+		if (keyBuilder != NULL)
+			free(keyBuilder);
 	}
 	
+	// Converts the linkedlist into an appropriately sized records array
 	Record **converted = convertToArray(head, lineNum);
 
 	// If we get to this point, then we have inserted all of the Records properly into the array and can begin sorting
@@ -327,7 +340,7 @@ int main  (int argc, char **argv) {
 	//****************************************************************************************************************
 	
 	// Assume that the implemented convertToArray method will handle freeing of Nodes
-	//free(line);
+	free(line);
 	
 	//for (i = 0; i < lineNum; i++){
 	//	if (converted[lineNum].key != NULL)
