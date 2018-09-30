@@ -39,12 +39,13 @@ void merge(Record **, int, int, int, int (*f)(void *, void *));
 //expected type. Allows for Record struct to contain one simplistic void*ptr that is cast as necessary when passed to the correct comparator function 
 int intComparator(void *, void *);
 int strComparator(void *, void *);
+int doubleComparator(void *, void *);
 
 // Prototype for trim method in our library class
 char *trimwhitespace(char *);
 
 // Prototypes for convertToArray and resize methods in our library class
 Record **convertToArray(Node *, int);
-int resize(char *);
+int resize(char **);
 
 #endif

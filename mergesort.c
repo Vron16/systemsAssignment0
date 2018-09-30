@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<string.h>
 #include<ctype.h>
+#include<float.h>
 #include "simpleCSVSorter.h"
 
 void sortLaunch (Record **recordsStart, int right, int (*compareFcnPtr)(void *, void *)) {
@@ -63,7 +64,10 @@ void merge (Record **recordsStart, int left, int mid, int right, int (*compareFc
 		Record *rightTemp = rightHalf[rightIndex];
 		//write(STDOUT,rightTemp->key,sizeof(char)*strlen(rightTemp->key));
 		//write(STDOUT,leftTemp->key,sizeof(char)*strlen(leftTemp->key));
+		//if (compareFcnPtr == NULL)
+		//	write(STDERR,"AH!",sizeof(char)*3);
 		int comparison = compareFcnPtr(leftTemp->key, rightTemp->key);
+	//	int comparison = 1; // garbage
 		//write(STDOUT,&comparison,sizeof(*int));
 		if (comparison > 0) {
 			*(recordsStart + mergedIndex) = rightTemp;
@@ -109,11 +113,24 @@ void merge (Record **recordsStart, int left, int mid, int right, int (*compareFc
 }
 //TODO: HANDLE NULL CASES
 int intComparator (void* data0, void* data1) {
-	return *((int*)data0) - *((int*)data1);
+	return (atoi(data0) - atoi(data1));
 }
 
 int strComparator (void* data0, void* data1) {
 	return strcmp((const char*)data0, (const char*)data1);
+}
+
+int doubleComparator(void* data0, void* data1) {
+	double one = atof(data0);
+	double two = atof(data1);
+	
+	if (-0.00001 < one - two && one - two < 0.00001){ // represents the machine epsilon
+		return 0;
+	} else if (one - two < 0){
+		return -1;
+	} else {
+		return 1;
+	}
 }
 
 // Note: this code was grabbed from StackOverflow, by user Adam Rosenfield.
@@ -164,13 +181,7 @@ Record **convertToArray(Node *head, int numEntries){
 }
 
 // Resizes a string buffer by reallocating double the size
-int resize(char *buffer){
-	char *tmp = (char *)realloc(buffer, strlen(buffer)*sizeof(char)*2);
-	
-	if (tmp == NULL){
-		return -1;
-	} else {
-		buffer = tmp;
-		return 0;
-	}
+int resize(char **buffer){
+	*buffer  = realloc(*buffer, strlen(*buffer)*sizeof(char)*4);
+	return 0;
 }
