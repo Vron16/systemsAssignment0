@@ -4,33 +4,35 @@
 #include<ctype.h>
 #include "simpleCSVSorter.h"
 
-void sortLaunch (Record *recordsStart, int right, int (*compareFcnPtr)(void *, void *)) {
-	int size = right + 1;
-	Record temp[size];
+void sortLaunch (Record **recordsStart, int right, int (*compareFcnPtr)(void *, void *)) {
+	Record *temp[right];
 	int nullIndex = 0;
 	int i;
 	for (i = 0; i < right; i++) {
-		Record rec = *(recordsStart + i);
-		if (rec.key == NULL) {
+		Record *rec = *(recordsStart + i);
+		if (rec->key == NULL) {
 			temp[nullIndex] = rec;
 			nullIndex++;
 		}
 	}
 	int nonNullIndex = nullIndex;
 	for (i = 0; i < right; i++) {
-		Record rec = *(recordsStart + i);
-		if (rec.key != NULL) {
+		Record *rec = *(recordsStart + i);
+		if (rec->key != NULL) {
 			temp[nonNullIndex] = rec;
 			nonNullIndex++;
 		}
 	}
 	for (i = 0; i < right; i++) {
 		*(recordsStart + i) = temp[i];
+		//write(STDOUT,temp[i]->line, sizeof(char)*strlen(temp[i]->line));
+		//write(STDOUT, recordsStart[i]->line, sizeof(char)*strlen(recordsStart[i]->line));
 	}
-	mergesort(recordsStart, nullIndex, right, compareFcnPtr);
+
+	mergesort(recordsStart, nullIndex, right-1, compareFcnPtr);
 }
 
-void mergesort (Record *recordsStart, int left, int right, int (*compareFcnPtr)(void *, void *)) {
+void mergesort (Record **recordsStart, int left, int right, int (*compareFcnPtr)(void *, void *)) {
 	//as long as mergesort is working on a valid subsection of the array of records (left pointer is less than the right pointer)
 	if (left < right) {
 		int mid = (left + right)/2; //calculate middle index of the array of records
@@ -40,11 +42,11 @@ void mergesort (Record *recordsStart, int left, int right, int (*compareFcnPtr)(
 	}
 }
 
-void merge (Record *recordsStart, int left, int mid, int right, int (*compareFcnPtr)(void*, void*)) {
+void merge (Record **recordsStart, int left, int mid, int right, int (*compareFcnPtr)(void*, void*)) {
 	int leftSize = mid - left + 1;
 	int rightSize = right - mid;
-	Record leftHalf[leftSize];
-	Record rightHalf[rightSize];
+	Record *leftHalf[leftSize];
+	Record *rightHalf[rightSize];
 	int i;
 	for (i = 0; i < leftSize; i++) {
 		leftHalf[i] = *(recordsStart + left + i);
@@ -57,9 +59,12 @@ void merge (Record *recordsStart, int left, int mid, int right, int (*compareFcn
 	int mergedIndex = left;
 
 	while (leftIndex < leftSize && rightIndex < rightSize) {
-		Record leftTemp = leftHalf[leftIndex];
-		Record rightTemp = rightHalf[rightIndex];
-		int comparison = (*compareFcnPtr)(leftTemp.ptr, rightTemp.ptr);
+		Record *leftTemp = leftHalf[leftIndex];
+		Record *rightTemp = rightHalf[rightIndex];
+		//write(STDOUT,rightTemp->key,sizeof(char)*strlen(rightTemp->key));
+		//write(STDOUT,leftTemp->key,sizeof(char)*strlen(leftTemp->key));
+		int comparison = compareFcnPtr(leftTemp->key, rightTemp->key);
+		//write(STDOUT,&comparison,sizeof(*int));
 		if (comparison > 0) {
 			*(recordsStart + mergedIndex) = rightTemp;
 			//records[mergedIndex] = rightTemp;
@@ -97,6 +102,9 @@ void merge (Record *recordsStart, int left, int mid, int right, int (*compareFcn
 		mergedIndex++;
 		rightIndex++;
 	}
+
+	//write(STDOUT, recordsStart[0]->line,sizeof(char)*strlen(recordsStart[0]->line));
+	//write(STDOUT, recordsStart[1]->line,sizeof(char)*strlen(recordsStart[1]->line));
 
 }
 
@@ -138,17 +146,17 @@ char *trimwhitespace(char *str)
 
 // Takes a LinkedList and converts it into an array of Records
 // Also frees the pointers during creation
-Record *convertToArray(Node *head, int numEntries){
-	Record *myRecords = (Record *)malloc(sizeof(Record)*numEntries);
-
+Record **convertToArray(Node *head, int numEntries){
+	Record **myRecords = (Record **)malloc(sizeof(Record *)*numEntries);
 	Node *current = head;
 
 	int i;
 	for (i = 0; i < numEntries; i++){
+		myRecords[i] = (Record *)malloc(sizeof(Record));
 		myRecords[i] = current->data;
-		Node *prev = current;
+		//Node *prev = current;
 		current = current->next;
-		free(prev); // garbage collection
+		//free(prev); // garbage collection
 	}
 
 	return &myRecords;

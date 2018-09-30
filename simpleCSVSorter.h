@@ -21,16 +21,16 @@ typedef struct record {
 } Record;
 
 typedef struct node {
-	Record data; // actual data that we need
+	Record *data; // actual data that we need
 	struct node *next; // pointer to next node in list
 } Node;
 
 // Mergesort prototype headers for .c file to use
 // int* parameter will be the function pointer
 // to the appropriate comparator function
-void sortLaunch(Record *, int, int(*f)(void *, void *));
-void mergesort(Record *, int, int, int (*f)(void *, void *));
-void merge(Record *, int, int, int, int (*f)(void *, void *));
+void sortLaunch(Record **, int, int(*f)(void *, void *));
+void mergesort(Record **, int, int, int (*f)(void *, void *));
+void merge(Record **, int, int, int, int (*f)(void *, void *));
 
 //intComparator and strComparator prototype headers for mergesort.c to use
 //Pointer to intComparator is passed into mergesort function for records containing numeric values
@@ -44,7 +44,7 @@ int strComparator(void *, void *);
 char *trimwhitespace(char *);
 
 // Prototypes for convertToArray and resize methods in our library class
-Record *convertToArray(Node *, int);
+Record **convertToArray(Node *, int);
 int resize(char *);
 
 #endif
