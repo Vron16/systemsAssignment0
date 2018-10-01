@@ -283,7 +283,7 @@ int main  (int argc, char **argv) {
 					break;
 			}
 
-			free(newChar);
+			//free(newChar);
 		}
 
 		if (endOfFile == 0){
@@ -303,9 +303,9 @@ int main  (int argc, char **argv) {
 			lineNum++;
 		}	
 		
-		free(strBuilder);
-		if (keyBuilder != NULL)
-			free(keyBuilder);
+		//free(strBuilder);
+		//if (keyBuilder != NULL)
+		//	free(keyBuilder);
 	}
 	
 	// Converts the linkedlist into an appropriately sized records array
