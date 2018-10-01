@@ -332,7 +332,7 @@ int main  (int argc, char **argv) {
 	
 	int i;
 	for (i = 0; i < lineNum; i++){
-		write(STDOUT, converted[lineNum]->line, sizeof(char)*strlen(converted[lineNum]->line));
+		write(STDOUT, converted[i]->line, sizeof(char)*strlen(converted[i]->line));
 	}
 		
 	//****************************************************************************************************************
