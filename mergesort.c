@@ -112,9 +112,22 @@ void merge (Record **recordsStart, int left, int mid, int right, int (*compareFc
 
 }
 
-int intComparator (void* data0, void* data1) {
+/*int intComparator (void* data0, void* data1) {
 	return (atoi(data0) - atoi(data1));
+}*/
+
+int intComparator (void *data0, void* data1) {
+	long one = atol(data0);
+	long two = atol(data1);
+
+	if (one > two)
+		return 1;
+	else if (one < two) 
+		return -1;
+	else
+		return 0;
 }
+
 
 int strComparator (void* data0, void* data1) {
 	return strcmp((const char*)data0, (const char*)data1);
