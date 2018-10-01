@@ -5,6 +5,9 @@
 #include<float.h>
 #include "simpleCSVSorter.h"
 
+//called by the main file and launches the process of sorting
+//creates temp array and iterates through array of pointers and moves nulls to start
+//copies all non-null entries after the null entries and calls mergesort on non-null portion
 void sortLaunch (Record **recordsStart, int right, int (*compareFcnPtr)(void *, void *)) {
 	Record *temp[right];
 	int nullIndex = 0;
@@ -32,7 +35,8 @@ void sortLaunch (Record **recordsStart, int right, int (*compareFcnPtr)(void *, 
 
 	mergesort(recordsStart, nullIndex, right-1, compareFcnPtr);
 }
-
+//recursive mergesort function that sorts between provided indices
+//does not sort if left index is the same as the right index (one-element array)
 void mergesort (Record **recordsStart, int left, int right, int (*compareFcnPtr)(void *, void *)) {
 	//as long as mergesort is working on a valid subsection of the array of records (left pointer is less than the right pointer)
 	if (left < right) {
@@ -42,7 +46,10 @@ void mergesort (Record **recordsStart, int left, int right, int (*compareFcnPtr)
 		merge(recordsStart, left, mid, right, compareFcnPtr); //merge the two halves of the array by using the merge helper function
 	}
 }
-
+//called by mergesort function to merge two sorted subarrays
+//creates two temp arrays to contain elements on the two sorted halves
+//then merges into the original array by comparing elements from each half with each other
+//if one array is traversed before the other, contents of the nontraversed array simply copied to original in order they appear
 void merge (Record **recordsStart, int left, int mid, int right, int (*compareFcnPtr)(void*, void*)) {
 	int leftSize = mid - left + 1;
 	int rightSize = right - mid;
@@ -67,7 +74,6 @@ void merge (Record **recordsStart, int left, int mid, int right, int (*compareFc
 		//if (compareFcnPtr == NULL)
 		//	write(STDERR,"AH!",sizeof(char)*3);
 		int comparison = compareFcnPtr(leftTemp->key, rightTemp->key);
-	//	int comparison = 1; // garbage
 		//write(STDOUT,&comparison,sizeof(*int));
 		if (comparison > 0) {
 			*(recordsStart + mergedIndex) = rightTemp;
@@ -115,7 +121,9 @@ void merge (Record **recordsStart, int left, int mid, int right, int (*compareFc
 /*int intComparator (void* data0, void* data1) {
 	return (atoi(data0) - atoi(data1));
 }*/
-
+//called for any situation where the keys to be sorted are ints
+//takes in two void data pointers and converts them to longs
+//then returns 1 if first arg is bigger, -1 if vice versa, 0 if equal
 int intComparator (void *data0, void* data1) {
 	long one = atol(data0);
 	long two = atol(data1);
@@ -127,12 +135,17 @@ int intComparator (void *data0, void* data1) {
 	else
 		return 0;
 }
-
-
+//called for any situation where the keys to be sorted are strings
+//takes in two void data pointers and calls strcmp on them
+//returns the output of strcmp, which is positive if first arg is bigger than second, negative if vice versa, 0 if equal
 int strComparator (void* data0, void* data1) {
 	return strcmp((const char*)data0, (const char*)data1);
 }
-
+//called for any situation where keys to be sorted are doubles
+//takes in two void data pointers and converts them into doubles
+//if difference is less than machine epsilon (floating-point error), treated as equal and return 0
+//if difference is less than 0 return -1
+//otherwise return 1, meaning first arg is larger than second
 int doubleComparator(void* data0, void* data1) {
 	double one = atof(data0);
 	double two = atof(data1);

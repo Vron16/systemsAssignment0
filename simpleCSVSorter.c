@@ -31,6 +31,7 @@ int main  (int argc, char **argv) {
 	int found = 0; // boolean value to represent when we find the correct column name
 	int numOfCommas = 0; // represents number of commas acting as separators in line
 	int numCols = 0; // represents the number of columns each record should have
+	int first = 1; //represents that we are at the start of the input file
 	char *line = (char *)malloc(sizeof(char)*100); // holds the entire line for the column headings to be printed at end
 
 	// Memory check
@@ -80,6 +81,16 @@ int main  (int argc, char **argv) {
 			}
 
 			read(STDIN, newChar, sizeof(char)); // gets a single character from STDIN
+			if (first == 1) {
+				if (strlen(newChar) == 0) {
+					char *errorMessage = "Error, no input was provided to the sorter. Aborting program.\n";
+					write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
+					return -1;
+				}
+				else {
+					first = 0;
+				}
+			}
 				
 			strcat(line, newChar); // append the character to the line for output
 		
