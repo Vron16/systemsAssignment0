@@ -11,7 +11,7 @@ int main  (int argc, char **argv) {
 	// and the -c flag)
 	if (argc != 3){
 		char *errorMessage = "Missing command line arguments.  Aborting program.\n";
-		write(STDERR, errorMessage0, sizeof(char)*strlen(errorMessage));
+		write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 		return -1;
 	}
 
@@ -19,7 +19,7 @@ int main  (int argc, char **argv) {
 
 	if (strcmp(sort,"-c") != 0){
 		char *errorMessage = "Unrecognized value.  Expected \"-c\".  Aborting program.\n";
-		write(STDERR, errorMessage1, sizeof(char)*strlen(errorMessage));
+		write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 		return -1;
 	}
 
@@ -34,9 +34,9 @@ int main  (int argc, char **argv) {
 	char *line = (char *)malloc(sizeof(char)*100); // holds the entire line for the column headings to be printed at end
 
 	// Memory check
-	if (strBuilder == NULL){
+	if (line == NULL){
 		char *errorMessage = "Error upon allocating memory to line for column headings.  Aborting program.\n";
-		write(STDERR, errorMessage3, sizeof(char)*strlen(errorMessage));
+		write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 		return -1;
 	}
 
@@ -53,7 +53,7 @@ int main  (int argc, char **argv) {
 		// Memory check
 		if (strBuilder == NULL){
 			char *errorMessage = "Error upon allocating memory to strBuilder for column headings.  Aborting program.\n";
-			write(STDERR, errorMessage3, sizeof(char)*strlen(errorMessage));
+			write(STDERR, errorMessage, sizeof(char)*strlen(errorMessage));
 			return -1;
 		}
 
@@ -332,7 +332,7 @@ int main  (int argc, char **argv) {
 	
 	int i;
 	for (i = 0; i < lineNum; i++){
-		write(STDOUT, converted[lineNum].line, sizeof(char)*strlen(converted[lineNum].line));
+		write(STDOUT, converted[lineNum]->line, sizeof(char)*strlen(converted[lineNum]->line));
 	}
 		
 	//****************************************************************************************************************

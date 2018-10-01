@@ -176,7 +176,7 @@ Record **convertToArray(Node *head, int numEntries){
 		//free(prev); // garbage collection
 	}
 
-	return &myRecords;
+	return myRecords;
 }
 
 // Resizes a string buffer by reallocating double the size
